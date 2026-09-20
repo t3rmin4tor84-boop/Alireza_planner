@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#111827">
 <link rel="manifest" href="./manifest.webmanifest">
-<title>Mahdi Planner</title>
+<title>Alireza Planner</title>
 
 <style>
 *{box-sizing:border-box}
@@ -88,7 +88,7 @@ input[type=file]{display:none}
 
 <div class="header">
   <div>
-    <h1>📋 Mahdi Planner</h1>
+    <h1>📋 Alireza Planner</h1>
     <div class="muted">برنامه‌ریزی و پیگیری روزانه</div>
   </div>
   <div class="topBtns">
@@ -176,6 +176,7 @@ input[type=file]{display:none}
       <input type="file" accept=".json" onchange="restore(event)">
     </label>
   </div>
+
   <button class="danger" style="width:100%;margin-top:10px" onclick="resetAll()">
     حذف همه اطلاعات
   </button>
@@ -184,7 +185,11 @@ input[type=file]{display:none}
 </div>
 
 <script>
-const KEY="mahdi_planner_final";
+/* ================================
+   ALIREZA PLANNER
+   ================================ */
+
+const KEY="alireza_planner_final";
 
 const defaults=[
   ["ورزش",15,"score"],
@@ -227,12 +232,17 @@ function key(d=current){
 
 function dayData(d=current){
   const k=key(d);
-  if(!S.days[k]) S.days[k]={};
+
+  if(!S.days[k]){
+    S.days[k]={};
+  }
+
   return S.days[k];
 }
 
 function val(f,d=current){
   const x=dayData(d)[f.id];
+
   return x==null ? 0 : Number(x);
 }
 
@@ -240,6 +250,7 @@ function editVal(f){
   if(Object.prototype.hasOwnProperty.call(pending,f.id)){
     return Number(pending[f.id]);
   }
+
   return val(f);
 }
 
@@ -271,15 +282,33 @@ function doneCount(d=current){
   return S.fields.filter(f=>val(f,d)>=100).length;
 }
 
+/* ================================
+   JALALI DATE
+   ================================ */
+
 function jalali(gy,gm,gd){
-  const gdm=[0,31,59,90,120,151,181,212,243,273,304,334];
+  const gdm=[
+    0,31,59,90,120,151,
+    181,212,243,273,304,334
+  ];
+
   let gy2=gy+(gm>2?1:0);
-  let days=355666+365*gy+Math.floor((gy2+3)/4)-Math.floor((gy2+99)/100)+Math.floor((gy2+399)/400)+gd+gdm[gm-1];
+
+  let days=
+    355666+
+    365*gy+
+    Math.floor((gy2+3)/4)-
+    Math.floor((gy2+99)/100)+
+    Math.floor((gy2+399)/400)+
+    gd+
+    gdm[gm-1];
 
   let jy=-1595+33*Math.floor(days/12053);
+
   days%=12053;
 
   jy+=4*Math.floor(days/1461);
+
   days%=1461;
 
   if(days>365){
@@ -287,42 +316,84 @@ function jalali(gy,gm,gd){
     days=(days-1)%365;
   }
 
-  let jm=days<186?1+Math.floor(days/31):7+Math.floor((days-186)/30);
-  let jd=1+(days<186?days%31:(days-186)%30);
+  let jm=
+    days<186
+      ?1+Math.floor(days/31)
+      :7+Math.floor((days-186)/30);
+
+  let jd=
+    1+
+    (
+      days<186
+        ?days%31
+        :(days-186)%30
+    );
 
   return [jy,jm,jd];
 }
 
 function jDate(d=current){
-  return jalali(d.getFullYear(),d.getMonth()+1,d.getDate());
+  return jalali(
+    d.getFullYear(),
+    d.getMonth()+1,
+    d.getDate()
+  );
 }
 
 const months=[
-  "فروردین","اردیبهشت","خرداد","تیر","مرداد","شهریور",
-  "مهر","آبان","آذر","دی","بهمن","اسفند"
+  "فروردین",
+  "اردیبهشت",
+  "خرداد",
+  "تیر",
+  "مرداد",
+  "شهریور",
+  "مهر",
+  "آبان",
+  "آذر",
+  "دی",
+  "بهمن",
+  "اسفند"
 ];
 
 const weekdays=[
-  "یکشنبه","دوشنبه","سه‌شنبه","چهارشنبه","پنجشنبه","جمعه","شنبه"
+  "یکشنبه",
+  "دوشنبه",
+  "سه‌شنبه",
+  "چهارشنبه",
+  "پنجشنبه",
+  "جمعه",
+  "شنبه"
 ];
 
 function dateText(d=current){
   const j=jDate(d);
+
   return `${j[2]} ${months[j[1]-1]} ${j[0]}`;
 }
 
 function renderDate(){
   const j=jDate(current);
-  document.getElementById("dateTitle").textContent=dateText(current);
+
+  document.getElementById("dateTitle").textContent=
+    dateText(current);
+
   document.getElementById("dateSub").textContent=
-    weekdays[current.getDay()]+" • "+current.toLocaleDateString("fa-IR");
+    weekdays[current.getDay()] +
+    " • " +
+    current.toLocaleDateString("fa-IR");
 }
+
+/* ================================
+   ACTIVITIES
+   ================================ */
 
 function renderActivities(){
   const box=document.getElementById("activities");
 
   if(!S.fields.length){
-    box.innerHTML='<div class="muted">هنوز فعالیتی اضافه نشده است.</div>';
+    box.innerHTML=
+      '<div class="muted">هنوز فعالیتی اضافه نشده است.</div>';
+
     return;
   }
 
@@ -332,33 +403,59 @@ function renderActivities(){
     if(f.type==="done"){
       return `
       <div class="activity">
+
         <div class="activityHead">
+
           <div>
-            <div class="activityName">${escapeHtml(f.name)}</div>
-            <span class="weight">وزن ${f.weight}%</span>
+            <div class="activityName">
+              ${escapeHtml(f.name)}
+            </div>
+
+            <span class="weight">
+              وزن ${f.weight}%
+            </span>
           </div>
-          <span class="badge">انجام شد / نشد</span>
+
+          <span class="badge">
+            انجام شد / نشد
+          </span>
+
         </div>
 
         <button
           class="doneBtn ${v>=100?"done":""}"
           onclick="toggleDone('${f.id}')">
+
           ${v>=100?"✓ انجام شد":"○ انجام نشده"}
+
         </button>
+
       </div>`;
     }
 
     return `
     <div class="activity">
+
       <div class="activityHead">
+
         <div>
-          <div class="activityName">${escapeHtml(f.name)}</div>
-          <span class="weight">وزن ${f.weight}%</span>
+          <div class="activityName">
+            ${escapeHtml(f.name)}
+          </div>
+
+          <span class="weight">
+            وزن ${f.weight}%
+          </span>
         </div>
-        <span class="badge">امتیاز از ۱۰۰</span>
+
+        <span class="badge">
+          امتیاز از ۱۰۰
+        </span>
+
       </div>
 
       <div class="rangeRow">
+
         <input
           id="slider-${f.id}"
           type="range"
@@ -367,8 +464,15 @@ function renderActivities(){
           value="${v}"
           oninput="updateSlider('${f.id}',this.value)"
         >
-        <div class="sliderValue" id="value-${f.id}">${v}%</div>
+
+        <div
+          class="sliderValue"
+          id="value-${f.id}">
+          ${v}%
+        </div>
+
       </div>
+
     </div>`;
   }).join("");
 
@@ -379,7 +483,11 @@ function updateSlider(id,value){
   pending[id]=Number(value);
 
   const el=document.getElementById("value-"+id);
-  if(el) el.textContent=Number(value)+"%";
+
+  if(el){
+    el.textContent=
+      Number(value)+"%";
+  }
 
   updatePreview();
   updatePendingStatus();
@@ -387,31 +495,46 @@ function updateSlider(id,value){
 
 function toggleDone(id){
   const f=S.fields.find(x=>x.id===id);
+
   if(!f) return;
 
   const currentValue=editVal(f);
-  pending[id]=currentValue>=100?0:100;
+
+  pending[id]=
+    currentValue>=100
+      ?0
+      :100;
 
   renderActivities();
+
   updatePreview();
   updatePendingStatus();
 }
 
 function updatePreview(){
   const s=previewScore();
-  document.getElementById("scoreText").textContent=s+"%";
-  document.getElementById("progressBar").style.width=s+"%";
+
+  document.getElementById("scoreText").textContent=
+    s+"%";
+
+  document.getElementById("progressBar").style.width=
+    s+"%";
 
   let done=0;
+
   S.fields.forEach(f=>{
-    if(editVal(f)>=100) done++;
+    if(editVal(f)>=100){
+      done++;
+    }
   });
 
-  document.getElementById("doneText").textContent=done;
+  document.getElementById("doneText").textContent=
+    done;
 }
 
 function updatePendingStatus(){
-  const el=document.getElementById("pendingText");
+  const el=
+    document.getElementById("pendingText");
 
   if(Object.keys(pending).length){
     el.style.display="block";
@@ -421,10 +544,16 @@ function updatePendingStatus(){
 }
 
 function applyChanges(showMessage=true){
-  const ids=Object.keys(pending);
+  const ids=
+    Object.keys(pending);
 
   if(!ids.length){
-    if(showMessage) alert("تغییری برای اعمال وجود ندارد.");
+    if(showMessage){
+      alert(
+        "تغییری برای اعمال وجود ندارد."
+      );
+    }
+
     return;
   }
 
@@ -435,11 +564,15 @@ function applyChanges(showMessage=true){
   });
 
   pending={};
+
   save();
+
   render();
 
   if(showMessage){
-    alert("تغییرات با موفقیت اعمال و ذخیره شد ✅");
+    alert(
+      "تغییرات با موفقیت اعمال و ذخیره شد ✅"
+    );
   }
 }
 
@@ -448,377 +581,816 @@ function changeDay(n){
     applyChanges(false);
   }
 
-  current.setDate(current.getDate()+n);
+  current.setDate(
+    current.getDate()+n
+  );
+
   pending={};
+
   render();
 }
 
+/* ================================
+   STREAK
+   ================================ */
+
 function streak(){
   let n=0;
+
   let d=new Date(current);
 
   while(true){
+
     if(score(d)>=70){
       n++;
-      d.setDate(d.getDate()-1);
+
+      d.setDate(
+        d.getDate()-1
+      );
+
     }else{
       break;
     }
-    if(n>3650) break;
+
+    if(n>3650){
+      break;
+    }
   }
 
   return n;
 }
 
+/* ================================
+   STATS
+   ================================ */
+
 function renderStats(){
   updatePreview();
-  document.getElementById("streakText").textContent=streak()+" 🔥";
+
+  document.getElementById(
+    "streakText"
+  ).textContent=
+    streak()+" 🔥";
 }
 
+/* ================================
+   CHART
+   ================================ */
+
 function renderChart(){
-  const box=document.getElementById("chart");
+  const box=
+    document.getElementById("chart");
+
   let html="";
 
   for(let i=13;i>=0;i--){
+
     const d=new Date(current);
-    d.setDate(d.getDate()-i);
+
+    d.setDate(
+      d.getDate()-i
+    );
 
     const s=score(d);
+
     const j=jDate(d);
 
     html+=`
       <div class="barWrap">
-        <div style="display:flex;flex-direction:column;align-items:center;width:100%">
-          <div class="bar" style="height:${Math.max(3,s*1.35)}px" title="${s}%"></div>
-          <div class="chartLabel">${j[2]}</div>
+
+        <div
+          style="
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+            width:100%
+          "
+        >
+
+          <div
+            class="bar"
+            style="
+              height:${Math.max(
+                3,
+                s*1.35
+              )}px
+            "
+            title="${s}%"
+          ></div>
+
+          <div class="chartLabel">
+            ${j[2]}
+          </div>
+
         </div>
-      </div>`;
+
+      </div>
+    `;
   }
 
   box.innerHTML=html;
 }
 
+/* ================================
+   AVERAGE
+   ================================ */
+
 function avg(days,offset=0){
   let sum=0;
 
-  for(let i=offset;i<offset+days;i++){
+  for(
+    let i=offset;
+    i<offset+days;
+    i++
+  ){
+
     const d=new Date(current);
-    d.setDate(d.getDate()-i);
+
+    d.setDate(
+      d.getDate()-i
+    );
+
     sum+=score(d);
   }
 
-  return Math.round(sum/days);
+  return Math.round(
+    sum/days
+  );
 }
 
+/* ================================
+   COMPARISON
+   ================================ */
+
 function renderComparisons(){
+
   const w=avg(7,0);
   const pw=avg(7,7);
+
   const m=avg(30,0);
   const pm=avg(30,30);
 
   const wd=w-pw;
   const md=m-pm;
 
-  document.getElementById("comparisons").innerHTML=`
+  document.getElementById(
+    "comparisons"
+  ).innerHTML=`
+
     <div class="row">
       <span>۷ روز اخیر</span>
       <b>${w}%</b>
     </div>
+
     <div class="row">
       <span>۷ روز قبل</span>
       <b>${pw}%</b>
     </div>
+
     <div class="row">
       <span>تغییر هفتگی</span>
-      <b class="${wd>=0?"good":"bad"}">${wd>=0?"+":""}${wd}%</b>
+
+      <b class="${wd>=0?"good":"bad"}">
+        ${wd>=0?"+":""}${wd}%
+      </b>
     </div>
+
     <hr>
+
     <div class="row">
       <span>۳۰ روز اخیر</span>
       <b>${m}%</b>
     </div>
+
     <div class="row">
       <span>۳۰ روز قبل</span>
       <b>${pm}%</b>
     </div>
+
     <div class="row">
       <span>تغییر ماهانه</span>
-      <b class="${md>=0?"good":"bad"}">${md>=0?"+":""}${md}%</b>
-    </div>`;
+
+      <b class="${md>=0?"good":"bad"}">
+        ${md>=0?"+":""}${md}%
+      </b>
+    </div>
+  `;
 }
 
+/* ================================
+   INSIGHTS
+   ================================ */
+
 function renderInsights(){
+
   if(!S.fields.length){
-    document.getElementById("insights").innerHTML="فعالیتی برای تحلیل وجود ندارد.";
+
+    document.getElementById(
+      "insights"
+    ).innerHTML=
+      "فعالیتی برای تحلیل وجود ندارد.";
+
     return;
   }
 
   const arr=S.fields.map(f=>({
+
     name:f.name,
+
     value:scoreField(f)
-  })).sort((a,b)=>b.value-a.value);
+
+  })).sort(
+    (a,b)=>b.value-a.value
+  );
 
   const best=arr[0];
-  const weak=arr[arr.length-1];
 
-  document.getElementById("insights").innerHTML=`
+  const weak=
+    arr[arr.length-1];
+
+  document.getElementById(
+    "insights"
+  ).innerHTML=`
+
     <div class="row">
-      <span>💪 نقطه قوت</span>
-      <b>${escapeHtml(best.name)} — ${best.value}%</b>
+
+      <span>
+        💪 نقطه قوت
+      </span>
+
+      <b>
+        ${escapeHtml(best.name)}
+        —
+        ${best.value}%
+      </b>
+
     </div>
+
     <div class="row">
-      <span>🎯 نیازمند توجه</span>
-      <b>${escapeHtml(weak.name)} — ${weak.value}%</b>
-    </div>`;
+
+      <span>
+        🎯 نیازمند توجه
+      </span>
+
+      <b>
+        ${escapeHtml(weak.name)}
+        —
+        ${weak.value}%
+      </b>
+
+    </div>
+  `;
 }
 
 function scoreField(f){
+
   let total=0;
   let count=0;
 
   for(let i=0;i<30;i++){
-    const d=new Date(current);
-    d.setDate(d.getDate()-i);
+
+    const d=
+      new Date(current);
+
+    d.setDate(
+      d.getDate()-i
+    );
 
     total+=val(f,d);
+
     count++;
   }
 
-  return Math.round(total/count);
+  return Math.round(
+    total/count
+  );
 }
 
+/* ================================
+   CALENDAR
+   ================================ */
+
 function renderCalendar(){
+
   const j=jDate(current);
+
   const jy=j[0];
   const jm=j[1];
 
   let html=`
+
     <div class="row">
-      <button class="secondary" onclick="calendarMonth(-1)">‹</button>
-      <b>${months[jm-1]} ${jy}</b>
-      <button class="secondary" onclick="calendarMonth(1)">›</button>
+
+      <button
+        class="secondary"
+        onclick="calendarMonth(-1)">
+        ‹
+      </button>
+
+      <b>
+        ${months[jm-1]} ${jy}
+      </b>
+
+      <button
+        class="secondary"
+        onclick="calendarMonth(1)">
+        ›
+      </button>
+
     </div>
+
     <div class="calendar">
-      ${["ش","ی","د","س","چ","پ","ج"].map(x=>`<div class="calHead">${x}</div>`).join("")}
+
+      ${
+        ["ش","ی","د","س","چ","پ","ج"]
+        .map(x=>
+          `<div class="calHead">${x}</div>`
+        )
+        .join("")
+      }
   `;
 
-  const days=jm<=6?31:jm<=11?30:30;
+  const days=
+    jm<=6
+      ?31
+      :jm<=11
+        ?30
+        :30;
 
-  const first=new Date(current);
+  const first=
+    new Date(current);
+
   first.setDate(1);
 
-  let start=(first.getDay()+1)%7;
+  let start=
+    (first.getDay()+1)%7;
 
   for(let i=0;i<start;i++){
-    html+=`<div class="calDay empty"></div>`;
+
+    html+=
+      `<div class="calDay empty"></div>`;
   }
 
   for(let d=1;d<=days;d++){
-    const cell=new Date(current);
+
+    const cell=
+      new Date(current);
+
     cell.setDate(1);
+
     cell.setDate(d);
 
     const s=score(cell);
 
     html+=`
-      <div class="calDay ${sameDate(cell,current)?"today":""}" title="${s}%">
+
+      <div
+        class="calDay ${
+          sameDate(cell,current)
+            ?"today"
+            :""
+        }"
+        title="${s}%"
+      >
+
         <b>${d}</b>
-        <div style="font-size:10px;margin-top:4px">${s}%</div>
-      </div>`;
+
+        <div
+          style="
+            font-size:10px;
+            margin-top:4px
+          "
+        >
+          ${s}%
+        </div>
+
+      </div>
+    `;
   }
 
   html+="</div>";
 
-  document.getElementById("calendar").innerHTML=html;
+  document.getElementById(
+    "calendar"
+  ).innerHTML=html;
 }
 
 function sameDate(a,b){
-  return a.toDateString()===b.toDateString();
+  return a.toDateString()===
+         b.toDateString();
 }
 
 function calendarMonth(n){
-  if(Object.keys(pending).length) applyChanges(false);
 
-  current.setMonth(current.getMonth()+n);
+  if(Object.keys(pending).length){
+    applyChanges(false);
+  }
+
+  current.setMonth(
+    current.getMonth()+n
+  );
+
   render();
 }
 
+/* ================================
+   SETTINGS
+   ================================ */
+
 function renderSettings(){
-  const box=document.getElementById("fieldsSettings");
 
-  box.innerHTML=S.fields.map(f=>`
-    <div class="fieldBox">
-      <input id="name-${f.id}" value="${escapeAttr(f.name)}">
+  const box=
+    document.getElementById(
+      "fieldsSettings"
+    );
 
-      <div style="height:8px"></div>
+  box.innerHTML=
+    S.fields.map(f=>`
 
-      <input
-        id="weight-${f.id}"
-        type="number"
-        min="0"
-        max="100"
-        value="${f.weight}"
-        placeholder="وزن">
+      <div class="fieldBox">
 
-      <div style="height:8px"></div>
+        <input
+          id="name-${f.id}"
+          value="${escapeAttr(f.name)}"
+        >
 
-      <select id="type-${f.id}">
-        <option value="score" ${f.type==="score"?"selected":""}>
-          امتیاز از ۱۰۰
-        </option>
-        <option value="done" ${f.type==="done"?"selected":""}>
-          انجام شد / انجام نشد
-        </option>
-      </select>
+        <div style="height:8px"></div>
 
-      <div class="actions">
-        <button class="primary" onclick="saveField('${f.id}')">ذخیره</button>
-        <button class="danger" onclick="removeField('${f.id}')">حذف</button>
+        <input
+          id="weight-${f.id}"
+          type="number"
+          min="0"
+          max="100"
+          value="${f.weight}"
+          placeholder="وزن"
+        >
+
+        <div style="height:8px"></div>
+
+        <select id="type-${f.id}">
+
+          <option
+            value="score"
+            ${f.type==="score"?"selected":""}
+          >
+            امتیاز از ۱۰۰
+          </option>
+
+          <option
+            value="done"
+            ${f.type==="done"?"selected":""}
+          >
+            انجام شد / انجام نشد
+          </option>
+
+        </select>
+
+        <div class="actions">
+
+          <button
+            class="primary"
+            onclick="saveField('${f.id}')"
+          >
+            ذخیره
+          </button>
+
+          <button
+            class="danger"
+            onclick="removeField('${f.id}')"
+          >
+            حذف
+          </button>
+
+        </div>
+
       </div>
-    </div>
-  `).join("");
+
+    `).join("");
 }
 
 function saveField(id){
-  if(Object.keys(pending).length) applyChanges(false);
 
-  const f=S.fields.find(x=>x.id===id);
+  if(Object.keys(pending).length){
+    applyChanges(false);
+  }
+
+  const f=
+    S.fields.find(
+      x=>x.id===id
+    );
+
   if(!f) return;
 
-  f.name=document.getElementById("name-"+id).value.trim()||"فعالیت";
-  f.weight=Math.max(0,Number(document.getElementById("weight-"+id).value)||0);
-  f.type=document.getElementById("type-"+id).value;
+  f.name=
+    document.getElementById(
+      "name-"+id
+    ).value.trim()
+    ||
+    "فعالیت";
+
+  f.weight=
+    Math.max(
+      0,
+      Number(
+        document.getElementById(
+          "weight-"+id
+        ).value
+      )||0
+    );
+
+  f.type=
+    document.getElementById(
+      "type-"+id
+    ).value;
 
   save();
+
   render();
-  alert("فعالیت ذخیره شد ✅");
+
+  alert(
+    "فعالیت ذخیره شد ✅"
+  );
 }
 
 function removeField(id){
-  if(!confirm("این فعالیت حذف شود؟")) return;
 
-  if(Object.keys(pending).length) applyChanges(false);
+  if(!confirm(
+    "این فعالیت حذف شود؟"
+  )){
+    return;
+  }
 
-  S.fields=S.fields.filter(f=>f.id!==id);
+  if(Object.keys(pending).length){
+    applyChanges(false);
+  }
 
-  Object.values(S.days).forEach(d=>{
-    delete d[id];
-  });
+  S.fields=
+    S.fields.filter(
+      f=>f.id!==id
+    );
+
+  Object.values(S.days)
+    .forEach(d=>{
+      delete d[id];
+    });
 
   save();
+
   render();
 }
 
 function addField(){
-  if(Object.keys(pending).length) applyChanges(false);
 
-  const name=prompt("نام فعالیت:");
+  if(Object.keys(pending).length){
+    applyChanges(false);
+  }
+
+  const name=
+    prompt("نام فعالیت:");
+
   if(!name) return;
 
-  const weight=Number(prompt("وزن فعالیت از ۰ تا ۱۰۰:","10"))||0;
+  const weight=
+    Number(
+      prompt(
+        "وزن فعالیت از ۰ تا ۱۰۰:",
+        "10"
+      )
+    )||0;
 
-  const type=confirm("اگر این فعالیت فقط «انجام شد / انجام نشد» است OK بزنید.\nاگر درصد ۰ تا ۱۰۰ می‌خواهید Cancel بزنید.")
-    ?"done":"score";
+  const type=
+    confirm(
+      "اگر این فعالیت فقط «انجام شد / انجام نشد» است OK بزنید.\nاگر درصد ۰ تا ۱۰۰ می‌خواهید Cancel بزنید."
+    )
+      ?"done"
+      :"score";
 
   S.fields.push({
+
     id:"f"+Date.now(),
+
     name:name.trim(),
-    weight:Math.max(0,Math.min(100,weight)),
+
+    weight:
+      Math.max(
+        0,
+        Math.min(
+          100,
+          weight
+        )
+      ),
+
     type:type
   });
 
   save();
+
   render();
 }
 
+/* ================================
+   BACKUP
+   ================================ */
+
 function backup(){
-  if(Object.keys(pending).length) applyChanges(false);
 
-  const blob=new Blob(
-    [JSON.stringify(S,null,2)],
-    {type:"application/json"}
-  );
+  if(Object.keys(pending).length){
+    applyChanges(false);
+  }
 
-  const a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);
-  a.download="mahdi-planner-backup.json";
+  const blob=
+    new Blob(
+      [
+        JSON.stringify(
+          S,
+          null,
+          2
+        )
+      ],
+      {
+        type:"application/json"
+      }
+    );
+
+  const a=
+    document.createElement("a");
+
+  a.href=
+    URL.createObjectURL(blob);
+
+  a.download=
+    "alireza-planner-backup.json";
+
   a.click();
 
-  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  setTimeout(
+    ()=>{
+      URL.revokeObjectURL(
+        a.href
+      );
+    },
+    1000
+  );
 }
 
+/* ================================
+   RESTORE
+   ================================ */
+
 function restore(event){
-  const file=event.target.files[0];
+
+  const file=
+    event.target.files[0];
+
   if(!file) return;
 
-  const reader=new FileReader();
+  const reader=
+    new FileReader();
 
   reader.onload=()=>{
-    try{
-      const data=JSON.parse(reader.result);
 
-      if(!data.fields || !data.days){
+    try{
+
+      const data=
+        JSON.parse(
+          reader.result
+        );
+
+      if(
+        !data.fields ||
+        !data.days
+      ){
         throw new Error();
       }
 
       S=data;
 
       S.fields.forEach(f=>{
-        if(!f.type) f.type="score";
+        if(!f.type){
+          f.type="score";
+        }
       });
 
       pending={};
+
       save();
+
       render();
 
-      alert("پشتیبان با موفقیت وارد شد ✅");
+      alert(
+        "پشتیبان با موفقیت وارد شد ✅"
+      );
+
     }catch(e){
-      alert("فایل پشتیبان معتبر نیست.");
+
+      alert(
+        "فایل پشتیبان معتبر نیست."
+      );
     }
   };
 
   reader.readAsText(file);
 }
 
+/* ================================
+   RESET
+   ================================ */
+
 function resetAll(){
-  if(!confirm("همه اطلاعات حذف شود؟ این کار قابل برگشت نیست.")) return;
+
+  if(!confirm(
+    "همه اطلاعات حذف شود؟ این کار قابل برگشت نیست."
+  )){
+    return;
+  }
 
   localStorage.removeItem(KEY);
+
   location.reload();
 }
 
+/* ================================
+   THEME
+   ================================ */
+
 function toggleTheme(){
+
   S.dark=!S.dark;
+
   save();
+
   applyTheme();
 }
 
 function applyTheme(){
-  document.body.classList.toggle("dark",!!S.dark);
+
+  document.body.classList.toggle(
+    "dark",
+    !!S.dark
+  );
 }
 
+/* ================================
+   SECURITY / HTML
+   ================================ */
+
 function escapeHtml(x){
+
   return String(x)
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
+
+    .replaceAll(
+      "&",
+      "&amp;"
+    )
+
+    .replaceAll(
+      "<",
+      "&lt;"
+    )
+
+    .replaceAll(
+      ">",
+      "&gt;"
+    )
+
+    .replaceAll(
+      '"',
+      "&quot;"
+    )
+
+    .replaceAll(
+      "'",
+      "&#039;"
+    );
 }
 
 function escapeAttr(x){
+
   return escapeHtml(x);
 }
 
+/* ================================
+   MAIN RENDER
+   ================================ */
+
 function render(){
+
   applyTheme();
+
   renderDate();
+
   renderActivities();
+
   renderStats();
+
   renderChart();
+
   renderComparisons();
+
   renderInsights();
+
   renderCalendar();
+
   renderSettings();
 }
 
