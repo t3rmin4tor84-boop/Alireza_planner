@@ -1,4 +1,4 @@
-const C = "alireza-planner-v1";
+const C = "alireza-planner-v2";
 
 self.addEventListener("install", event => {
   event.waitUntil(
@@ -18,9 +18,7 @@ self.addEventListener("activate", event => {
   event.waitUntil(
     caches.keys().then(keys =>
       Promise.all(
-        keys
-          .filter(key => key !== C)
-          .map(key => caches.delete(key))
+        keys.map(key => caches.delete(key))
       )
     )
   );
@@ -30,8 +28,16 @@ self.addEventListener("activate", event => {
 
 self.addEventListener("fetch", event => {
   event.respondWith(
-    caches.match(event.request).then(cached => {
-      return cached || fetch(event.request);
-    })
+    fetch(event.request)
+      .then(response => {
+        const copy = response.clone();
+
+        caches.open(C).then(cache => {
+          cache.put(event.request, copy);
+        });
+
+        return response;
+      })
+      .catch(() => caches.match(event.request))
   );
 });
