@@ -1,1 +1,14 @@
-{"name":"Mahdi Planner","short_name":"Planner","start_url":"./","display":"standalone","lang":"fa","dir":"rtl","theme_color":"#111827"}
+{
+  "name": "Alireza Planner",
+  "short_name": "Alireza",
+  "description": "برنامه‌ریزی و پیگیری روزانه علیرضا",
+  "lang": "fa",
+  "dir": "rtl",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#111827",
+  "background_color": "#f4f6f8",
+  "icons": []
+}
